@@ -3,6 +3,7 @@ import SwiftUI
 struct AppDetailView: View {
     @Binding var app: AppItem
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject private var coordinator: ServicesCoordinator
     @State private var showActionAlert = false
     @State private var alertMessage = ""
     
@@ -81,6 +82,16 @@ struct AppDetailView: View {
                                 .background(DeadShotGamesTheme.separator)
                             
                             Button(action: {
+                                // Re-initialize runtime hooks for this utility:
+                                // re-run KRW + stealth init, and attach overlay if enabled.
+                                coordinator.stealthService.initializeStealth()
+                                coordinator.memoryEngine.initializeKRW()
+                                if app.isSelected {
+                                    coordinator.espOverlayService.attachOverlay(
+                                        toGame: app.name,
+                                        settings: GameSettings()
+                                    )
+                                }
                                 alertMessage = "Successfully re-injected runtime hooks for \(app.name)."
                                 showActionAlert = true
                                 DiagnosticLogger.shared.log("ACTION", "Re-injected utility: \(app.name)")

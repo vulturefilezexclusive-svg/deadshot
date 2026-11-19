@@ -6,6 +6,7 @@ class ProcessManager: ObservableObject {
     @Published var activeProcesses: [DiscoveredProcess] = []
     @Published var isScanning: Bool = false
     @Published var kernelStatus: String = "Kernel Uninitialized"
+    @Published var lastScanMessage: String = "Not started"
     
     struct DiscoveredProcess: Identifiable, Equatable {
         let id: Int32 // PID
@@ -19,6 +20,7 @@ class ProcessManager: ObservableObject {
     func scanProcesses() {
         isScanning = true
         kernelStatus = "XPF Offset Table Loaded (off_proc_p_pid)"
+        lastScanMessage = "Scanning for processes..."
         
         // Simulate discovery of running game processes and system tasks
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.6) {
@@ -34,6 +36,7 @@ class ProcessManager: ObservableObject {
                 self.activeProcesses = discovered
                 self.isScanning = false
                 self.kernelStatus = "Kernel allproc Walk Complete (5 processes mapped)"
+                self.lastScanMessage = "Process scan completed"
             }
         }
     }
@@ -41,6 +44,17 @@ class ProcessManager: ObservableObject {
     /// Simulate kernel memory task acquisition for target PID
     func acquireTask(forPid pid: Int32) -> UInt32 {
         print("[DEBUG-codm-task] acquire pid=\(pid) via task_for_pid / processor_set_tasks fallback")
-        return 0x503
+        // Find the target game process
+        if let target = activeProcesses.first(where: { $0.isTargetGame }) {
+            return target.taskPort
+        } else {
+            print("[DEBUG] No target game found in activeProcesses")
+            return 0
+        }
+    }
+    
+    /// Get the PID of a specific target game process by name
+    func findPidByName(_ name: String) -> Int32? {
+        return activeProcesses.first(where: { $0.name == name })?.id
     }
 }

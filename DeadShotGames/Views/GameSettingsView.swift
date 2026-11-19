@@ -3,18 +3,21 @@ import SwiftUI
 struct GameSettingsView: View {
     @Binding var game: GameItem
     @Environment(\.dismiss) private var dismiss
-    
-    @StateObject private var memoryEngine = MemoryEngine()
-    @StateObject private var espOverlayService = ESPOverlayService()
-    @StateObject private var stealthService = StealthService()
+    @EnvironmentObject private var coordinator: ServicesCoordinator
+
+    private var memoryEngine: MemoryEngine { coordinator.memoryEngine }
+    private var espOverlayService: ESPOverlayService { coordinator.espOverlayService }
+    private var stealthService: StealthService { coordinator.stealthService }
+
     @State private var showInjectionAlert = false
     @State private var injectionStatusMessage = ""
-    
+    @State private var injectionStatus: String = "Ready"
+
     var body: some View {
         ZStack {
             DeadShotGamesTheme.backgroundPrimary
                 .ignoresSafeArea()
-            
+
             ScrollView {
                 VStack(spacing: 20) {
                     headerSection
@@ -43,6 +46,12 @@ struct GameSettingsView: View {
                 message: Text(injectionStatusMessage),
                 dismissButton: .default(Text("OK"))
             )
+        }
+        .onDisappear {
+            // Cleanup overlay if it was left attached when leaving settings.
+            if espOverlayService.isOverlayActive {
+                espOverlayService.detachOverlay()
+            }
         }
         .preferredColorScheme(.dark)
     }
@@ -92,6 +101,11 @@ struct GameSettingsView: View {
                 .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
+                .onChange(of: game.settings) { newSettings in
+                    if espOverlayService.isOverlayActive {
+                        espOverlayService.updateESPSettings(newSettings)
+                    }
+                }
             
             Divider().background(DeadShotGamesTheme.separator)
             
@@ -99,6 +113,11 @@ struct GameSettingsView: View {
                 .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
+                .onChange(of: game.settings) { newSettings in
+                    if espOverlayService.isOverlayActive {
+                        espOverlayService.updateESPSettings(newSettings)
+                    }
+                }
             
             Divider().background(DeadShotGamesTheme.separator)
             
@@ -106,6 +125,11 @@ struct GameSettingsView: View {
                 .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
+                .onChange(of: game.settings) { newSettings in
+                    if espOverlayService.isOverlayActive {
+                        espOverlayService.updateESPSettings(newSettings)
+                    }
+                }
             
             Divider().background(DeadShotGamesTheme.separator)
             
@@ -113,6 +137,11 @@ struct GameSettingsView: View {
                 .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
+                .onChange(of: game.settings) { newSettings in
+                    if espOverlayService.isOverlayActive {
+                        espOverlayService.updateESPSettings(newSettings)
+                    }
+                }
             
             Divider().background(DeadShotGamesTheme.separator)
             
@@ -120,6 +149,11 @@ struct GameSettingsView: View {
                 .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
+                .onChange(of: game.settings) { newSettings in
+                    if espOverlayService.isOverlayActive {
+                        espOverlayService.updateESPSettings(newSettings)
+                    }
+                }
         }
     }
     
@@ -129,6 +163,11 @@ struct GameSettingsView: View {
                 .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
+                .onChange(of: game.settings) { newSettings in
+                    if espOverlayService.isOverlayActive {
+                        espOverlayService.updateESPSettings(newSettings)
+                    }
+                }
             
             Divider().background(DeadShotGamesTheme.separator)
             
@@ -201,21 +240,49 @@ struct GameSettingsView: View {
                 Text(stealthService.sandboxEscaped ? "Escaped" : "Sandboxed")
                     .foregroundColor(DeadShotGamesTheme.statusActive)
             }
+            Divider().background(DeadShotGamesTheme.separator)
+            HStack {
+                Text("Overlay")
+                Spacer()
+                Text(espOverlayService.isOverlayActive ? "Active" : "Detached")
+                    .foregroundColor(DeadShotGamesTheme.statusActive)
+            }
+            Divider().background(DeadShotGamesTheme.separator)
+            HStack {
+                Text("ESP Status")
+                Spacer()
+                Text(espOverlayService.espStatus)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(espOverlayService.isOverlayActive ? DeadShotGamesTheme.statusActive : DeadShotGamesTheme.textSecondary)
+            }
+            Divider().background(DeadShotGamesTheme.separator)
+            HStack {
+                Text("Aimbot")
+                Spacer()
+                Text(espOverlayService.aimbotStatus)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(espOverlayService.isOverlayActive ? DeadShotGamesTheme.statusActive : DeadShotGamesTheme.textSecondary)
+            }
+            if memoryEngine.isConnectedToKernel {
+                Divider().background(DeadShotGamesTheme.separator)
+                HStack {
+                    Text("Last Operation")
+                    Spacer()
+                    Text(memoryEngine.lastOperation)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(DeadShotGamesTheme.textSecondary)
+                }
+            }
         }
     }
     
     private var launchButton: some View {
         Button(action: {
-            stealthService.initializeStealth()
-            memoryEngine.initializeKRW()
-            espOverlayService.attachOverlay(toGame: game.name, settings: game.settings)
-            
-            injectionStatusMessage = "Successfully injected into \(game.name) via RemoteCall & SpringBoard IOSurface!"
-            showInjectionAlert = true
+            performInjectionFlow()
         }) {
             HStack {
-                Image(systemName: "bolt.fill")
-                Text("LAUNCH WITH INJECTION")
+                Image(systemName: injectionStatus == "Complete" ? "checkmark.circle.fill" : "bolt.fill")
+                Text(injectionStatus == "Complete" ? "INJECTION ACTIVE" : "LAUNCH WITH INJECTION")
             }
             .font(.system(size: 16, weight: .bold))
             .foregroundColor(.white)
@@ -226,5 +293,30 @@ struct GameSettingsView: View {
             .shadow(color: DeadShotGamesTheme.accentRed.opacity(0.4), radius: 8, x: 0, y: 4)
         }
         .padding(.top, 10)
+    }
+    
+    private func performInjectionFlow() {
+        injectionStatus = "Starting..."
+        
+        // Step 1: Initialize stealth
+        stealthService.initializeStealth()
+        
+        // Step 2: Initialize KRW
+        memoryEngine.initializeKRW()
+        
+        // Step 3: Attach overlay
+        espOverlayService.attachOverlay(toGame: game.name, settings: game.settings)
+        
+        // Step 4: If overlay attached, try to read memory to verify connection
+        if espOverlayService.isOverlayActive && memoryEngine.isConnectedToKernel {
+            let health = memoryEngine.readPlayerHealth()
+            let target = memoryEngine.readAimTarget()
+            print("[DEBUG-integration] Read back: health=\(health) aimTarget=\(target)")
+        }
+        
+        injectionStatus = "Complete"
+        injectionStatusMessage = "Successfully injected into \(game.name) via RemoteCall & SpringBoard IOSurface! \(espOverlayService.espStatus) | \(espOverlayService.aimbotStatus)"
+        showInjectionAlert = true
+        DiagnosticLogger.shared.log("SUCCESS", "Injected \(game.name) — \(espOverlayService.espStatus) | \(espOverlayService.aimbotStatus)")
     }
 }

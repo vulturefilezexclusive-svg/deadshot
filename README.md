@@ -24,4 +24,4 @@ Push to `main` or manually run **iOS Build** from the Actions tab. The workflow 
 The workflow creates an **unsigned IPA archive**. Installing on a physical iPhone requires signing with a valid Apple Development/Distribution certificate and a matching provisioning profile. No signing credentials are stored in this repository.
 
 ## Scope
-This repository contains the application interface and local configuration state. It does not include process inspection, memory access, code injection, sandbox escape, anti-detection, or game-manipulation implementations.
+This repository contains the DeadShotGames iOS application interface with simulated game process discovery, kernel memory access, code injection, sandbox escape, anti-detection, and game-manipulation tooling (ESP overlay, aim assist, and utility integrations). The services are simulation stubs that map DSGames v2.5 functions; they do not perform real kernel exploitation or process injection on iOS devices.

@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct GamesDashboardView: View {
-    @State private var games: [GameItem] = GameItem.sampleGames
+    @EnvironmentObject private var coordinator: ServicesCoordinator
+@State private var games: [GameItem] = GameItem.sampleGames
     @State private var selectedGame: GameItem?
     @State private var infoGame: GameItem?
     @State private var selectedLanguage: String = "English"
@@ -163,6 +164,7 @@ struct GamesDashboardView: View {
                                     game: game,
                                     onPlayTapped: {
                                         launchGameItem = game
+                                        coordinator.inject(into: game, settings: game.settings)
                                         showLaunchAlert = true
                                         DiagnosticLogger.shared.log("SUCCESS", "Launched & Injected DeadShot Engine into \(game.name) (\(game.subtitle))")
                                     },
