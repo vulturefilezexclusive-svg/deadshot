@@ -18,9 +18,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode
+      - name: Select Xcode 16.4
         run: |
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          if [ -d "/Applications/Xcode_16.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+          else
+            sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          fi
           xcodebuild -version
 
       - name: Install XcodeGen
@@ -31,33 +35,21 @@ jobs:
 
       - name: Build unsigned iOS app
         run: |
-          set -o pipefail
-          xcodebuild \
-            -project DeadShotGames.xcodeproj \
-            -scheme DeadShotGames \
-            -configuration Release \
-            -sdk iphoneos \
-            -destination 'generic/platform=iOS' \
-            -derivedDataPath build/DerivedData \
-            CODE_SIGNING_ALLOWED=NO \
-            build | tee build/xcodebuild.log
+          xcodebuild -project DeadShotGames.xcodeproj -scheme DeadShotGames -configuration Release -destination 'generic/platform=iOS' -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
 
       - name: Package unsigned IPA
         run: |
-          APP_PATH="build/DerivedData/Build/Products/Release-iphoneos/DeadShotGames.app"
-          test -d "$APP_PATH"
-          mkdir -p build/ipa/Payload
-          cp -R "$APP_PATH" build/ipa/Payload/
-          ditto -c -k --sequesterRsrc --keepParent build/ipa/Payload build/DeadShotGames-unsigned.ipa
-          ditto -c -k --sequesterRsrc "$APP_PATH" build/DeadShotGames-app.zip
+          rm -rf Payload DeadShotGames.ipa
+          mkdir -p Payload
+          cp -r build/DerivedData/Build/Products/Release-iphoneos/DeadShotGames.app Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload DeadShotGames.ipa
+          rm -rf Payload
+          ls -lh DeadShotGames.ipa
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: DeadShotGames-iOS-Build
-          path: |
-            build/DeadShotGames-unsigned.ipa
-            build/DeadShotGames-app.zip
-            build/xcodebuild.log
+          name: DeadShotGames-unsigned
+          path: DeadShotGames.ipa
           if-no-files-found: error
           retention-days: 14
