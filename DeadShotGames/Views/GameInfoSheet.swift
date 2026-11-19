@@ -21,7 +21,7 @@ struct GameInfoSheet: View {
                                 
                                 Image(systemName: game.iconName)
                                     .font(.system(size: 32))
-                                    .foregroundColor(DeadShotGamesTheme.accentBlue)
+                                    .foregroundColor(DeadShotGamesTheme.accentRed)
                             }
                             
                             VStack(alignment: .leading, spacing: 6) {
@@ -110,7 +110,7 @@ struct GameInfoSheet: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 18))
-                .foregroundColor(DeadShotGamesTheme.accentBlue)
+                .foregroundColor(DeadShotGamesTheme.accentRed)
                 .frame(width: 24, height: 24)
             
             VStack(alignment: .leading, spacing: 2) {

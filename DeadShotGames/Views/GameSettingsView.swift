@@ -57,7 +57,7 @@ struct GameSettingsView: View {
                     
                     Image(systemName: game.iconName)
                         .font(.system(size: 28))
-                        .foregroundColor(DeadShotGamesTheme.accentBlue)
+                        .foregroundColor(DeadShotGamesTheme.accentRed)
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -89,35 +89,35 @@ struct GameSettingsView: View {
     private var espSettingsSection: some View {
         SettingsSectionView(title: "ESP Settings", subtitle: "ScannerController, ESPReader & Renderer") {
             Toggle("Box", isOn: $game.settings.isBoxEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
             
             Divider().background(DeadShotGamesTheme.separator)
             
             Toggle("Line", isOn: $game.settings.isLineEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
             
             Divider().background(DeadShotGamesTheme.separator)
             
             Toggle("HP", isOn: $game.settings.isHpEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
             
             Divider().background(DeadShotGamesTheme.separator)
             
             Toggle("Distance", isOn: $game.settings.isDistanceEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
             
             Divider().background(DeadShotGamesTheme.separator)
             
             Toggle("Name", isOn: $game.settings.isNameEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
         }
@@ -126,7 +126,7 @@ struct GameSettingsView: View {
     private var aimSettingsSection: some View {
         SettingsSectionView(title: "Aim Settings", subtitle: "applyAimToLocalPawn & RemoteCall") {
             Toggle("Enable Aim", isOn: $game.settings.isAimEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentRed))
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(DeadShotGamesTheme.textPrimary)
             
@@ -140,11 +140,11 @@ struct GameSettingsView: View {
                     Spacer()
                     Text("\(Int(game.settings.fov))°")
                         .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(DeadShotGamesTheme.accentBlue)
+                        .foregroundColor(DeadShotGamesTheme.accentRed)
                 }
                 
                 Slider(value: $game.settings.fov, in: 10...360, step: 1)
-                    .accentColor(DeadShotGamesTheme.accentBlue)
+                    .accentColor(DeadShotGamesTheme.accentRed)
             }
             
             Divider().background(DeadShotGamesTheme.separator)
@@ -221,9 +221,9 @@ struct GameSettingsView: View {
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(DeadShotGamesTheme.accentBlueGradient)
+            .background(DeadShotGamesTheme.accentRedGradient)
             .cornerRadius(DeadShotGamesTheme.cornerRadiusMedium)
-            .shadow(color: DeadShotGamesTheme.accentBlue.opacity(0.4), radius: 8, x: 0, y: 4)
+            .shadow(color: DeadShotGamesTheme.accentRed.opacity(0.4), radius: 8, x: 0, y: 4)
         }
         .padding(.top, 10)
     }
