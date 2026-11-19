@@ -15,7 +15,7 @@ class MemoryEngine: ObservableObject {
     
     /// Read memory via mach_vm_read_overwrite
     func readMemory(address: UInt64, size: Int) -> Data {
-        print("[DEBUG-mach_vm_read_overwrite] Reading \(size) bytes from 0xString\(String(address, radix: 16))")
+        print("[DEBUG-mach_vm_read_overwrite] Reading \(size) bytes from 0x\(String(address, radix: 16))")
         // Return dummy data buffer for stub
         return Data(repeating: 0x00, count: size)
     }

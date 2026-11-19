@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 
 /// DiagnosticLogger: Tracks internal events, app launch, button taps, and telemetry from moment of launch.
 class DiagnosticLogger: ObservableObject {
