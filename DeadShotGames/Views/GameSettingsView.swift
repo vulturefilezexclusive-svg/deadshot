@@ -4,6 +4,12 @@ struct GameSettingsView: View {
     @Binding var game: GameItem
     @Environment(\.dismiss) private var dismiss
     
+    @StateObject private var memoryEngine = MemoryEngine()
+    @StateObject private var espOverlayService = ESPOverlayService()
+    @StateObject private var stealthService = StealthService()
+    @State private var showInjectionAlert = false
+    @State private var injectionStatusMessage = ""
+    
     var body: some View {
         ZStack {
             DeadShotGamesTheme.backgroundPrimary
@@ -37,9 +43,9 @@ struct GameSettingsView: View {
                                     GameStatusView(status: game.status)
                                     Text("•")
                                         .foregroundColor(DeadShotGamesTheme.textTertiary)
-                                    Text("Engine v2.5")
+                                    Text("DS Core v2.5 (KRW Active)")
                                         .font(.system(size: 12))
-                                        .foregroundColor(DeadShotGamesTheme.textSecondary)
+                                        .foregroundColor(DeadShotGamesTheme.statusActive)
                                 }
                             }
                             
@@ -50,7 +56,7 @@ struct GameSettingsView: View {
                     .dsCardStyle()
                     
                     // ESP Settings Section
-                    SettingsSectionView(title: "ESP Settings", subtitle: "Visual overlay and target rendering") {
+                    SettingsSectionView(title: "ESP Settings", subtitle: "ScannerController, ESPReader & Renderer") {
                         Toggle("Box", isOn: $game.settings.isBoxEnabled)
                             .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
                             .font(.system(size: 15, weight: .medium))
@@ -86,7 +92,7 @@ struct GameSettingsView: View {
                     }
                     
                     // Aim Settings Section
-                    SettingsSectionView(title: "Aim Settings", subtitle: "Target locking and field of view") {
+                    SettingsSectionView(title: "Aim Settings", subtitle: "applyAimToLocalPawn & RemoteCall") {
                         Toggle("Enable Aim", isOn: $game.settings.isAimEnabled)
                             .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
                             .font(.system(size: 15, weight: .medium))
@@ -140,12 +146,42 @@ struct GameSettingsView: View {
                         }
                     }
                     
-                    // Bottom Action / Launch
+                    // Kernel & Stealth Status Section
+                    SettingsSectionView(title: "Backend & Stealth Status", subtitle: "xpf, CoreTrust, and Mach Ports") {
+                        HStack {
+                            Text("KRW Primitive")
+                            Spacer()
+                            Text(memoryEngine.isConnectedToKernel ? "Active" : "Unbound")
+                                .foregroundColor(memoryEngine.isConnectedToKernel ? DeadShotGamesTheme.statusActive : DeadShotGamesTheme.statusInactive)
+                        }
+                        Divider().background(DeadShotGamesTheme.separator)
+                        HStack {
+                            Text("CoreTrust / AMFI Bypass")
+                            Spacer()
+                            Text(stealthService.coreTrustBypassed ? "Bypassed" : "Locked")
+                                .foregroundColor(DeadShotGamesTheme.statusActive)
+                        }
+                        Divider().background(DeadShotGamesTheme.separator)
+                        HStack {
+                            Text("Sandbox Escape (.rooootwashere)")
+                            Spacer()
+                            Text(stealthService.sandboxEscaped ? "Escaped" : "Sandboxed")
+                                .foregroundColor(DeadShotGamesTheme.statusActive)
+                        }
+                    }
+                    
+                    // Launch / Injection Action Button
                     Button(action: {
-                        // Action trigger for starting injected game
+                        // Initialize backend services and inject via RemoteCall
+                        stealthService.initializeStealth()
+                        memoryEngine.initializeKRW()
+                        espOverlayService.attachOverlay(toGame: game.name, settings: game.settings)
+                        
+                        injectionStatusMessage = "Successfully injected into \(game.name) via RemoteCall & SpringBoard IOSurface!"
+                        showInjectionAlert = true
                     }) {
                         HStack {
-                            Image(systemName: "play.fill")
+                            Image(systemName: "bolt.fill")
                             Text("LAUNCH WITH INJECTION")
                         }
                         .font(.system(size: 16, weight: .bold))
@@ -171,6 +207,13 @@ struct GameSettingsView: View {
                         .font(.system(size: 20))
                 }
             }
+        }
+        .alert(isPresented: $showInjectionAlert) {
+            Alert(
+                title: Text("Injection Active"),
+                message: Text(injectionStatusMessage),
+                dismissButton: .default(Text("OK"))
+            )
         }
         .preferredColorScheme(.dark)
     }

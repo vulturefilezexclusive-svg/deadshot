@@ -1,13 +1,13 @@
-# DeadShotGames UI Source
+# DeadShotGames-UI-Source (deadshot)
 
-A modular, native SwiftUI iOS project (`DeadShotGames-UI-Source`) reproducing the interface structure and visual design of the original DSGames v2.5 interface. Optimized for iOS 16.1+ and iPhone 15 dimensions with a dark-themed, premium aesthetic.
+A modular, native SwiftUI iOS project (`DeadShotGames-UI-Source`) reproducing the interface structure, visual design, and core reverse-engineered backend architecture of the original DSGames v2.5 interface. Optimized for iOS 16.1+ and iPhone 15 dimensions with a dark-themed, premium aesthetic.
 
 ---
 
 ## Architecture & Project Structure
 
 ```
-DeadShotGames-UI-Source/
+deadshot/
 │
 ├── DeadShotGames/
 │   ├── App/
@@ -21,7 +21,7 @@ DeadShotGames-UI-Source/
 │   │   └── GameInfoSheet.swift             # Information modal sheet
 │   │
 │   ├── Components/
-│   │   ├── GameRowView.swift               # Individual game list row with play/info/settings
+│   │   ├── GameRowView.swift               # Individual game row with play/info/settings
 │   │   ├── GameStatusView.swift            # Colored status indicator badge
 │   │   ├── AppSearchBar.swift              # Search field for app names / bundle IDs
 │   │   └── SettingsSectionView.swift       # Reusable card container for settings sections
@@ -29,6 +29,12 @@ DeadShotGames-UI-Source/
 │   ├── Models/
 │   │   ├── GameItem.swift                  # Game item model, status, and ESP/Aim settings structs
 │   │   └── AppItem.swift                   # App item model and category data
+│   │
+│   ├── Services/                           # Core Backend & Integration Modules
+│   │   ├── ProcessManager.swift            # PID enumeration, proc_listpids, xpf_find_allproc kernel walk
+│   │   ├── MemoryEngine.swift              # KRWPrimitive Mach ports, mach_vm_read_overwrite, DSGamesAppDecrypt
+│   │   ├── ESPOverlayService.swift         # ScannerController, RemoteCall thread hijacking, IOSurface window
+│   │   └── StealthService.swift            # CoreTrust/AMFI bypass, sandbox escape, DoH DNS profile
 │   │
 │   ├── DesignSystem/
 │   │   └── DeadShotGamesTheme.swift        # Dark theme color palette, gradients, typography, and card modifiers
@@ -43,39 +49,29 @@ DeadShotGames-UI-Source/
 
 ---
 
-## Key Features & UI Modules
+## Mapped Core Functions & Integration Modules
 
-### 1. Two-Tab Navigation (`MainTabView`)
-- **Games Tab (`GamesDashboardView`)**: Displays the main DeadShotGames dashboard with device status (`DSv2.5 • iPhone 15 Pro`), language selector (English, Vietnamese, Thai, Spanish, Portuguese, Chinese), overflow maintenance menu, and the complete game catalog.
-- **Apps Tab (`AppsListView`)**: Searchable app utility list with real-time name and bundle ID filtering, category chips, and selection toggles.
+### 1. Process Discovery & Kernel Walking (`ProcessManager`)
+- Implements kernel allproc walking via `xpf_find_allproc` (traversing offset tables like `off_proc_p_pid`, `p_name`).
+- Manages process enumeration via `proc_listpids` and `proc_pidpath`.
+- Task acquisition: uses `task_for_pid` and fallbacks through `host_processor_set_priv` + `processor_set_tasks` (with CODM task logging).
 
-### 2. Game Selection Catalog
-Includes all required game entries with status indicators and action buttons:
-1. **Wild Rift DS** (`com.riotgames.league.wildrift`)
-2. **Free Fire TH DS** (`com.dts.freefireth`)
-3. **Free Fire MAX DS** (`com.dts.freefiremax`)
-4. **CrossFire Mobile DS** (`com.tencent.tmgp.cf`)
-5. **8 Ball Pool DS** (`com.miniclip.eightballpool`)
-6. **Call of Duty Mobile VN DS** (`com.vng.codm`)
-7. **Call of Duty Mobile Global DS** (`com.activision.callofduty.shooter`)
+### 2. Memory Engine & KRW Primitives (`MemoryEngine`)
+- **KRW Primitive**: Communicates via darksword Mach control ports (`krw.darksword.control_port` / `rw_port`).
+- **Memory Reads**: Uses `mach_vm_read_overwrite`.
+- **Memory Writes**: Executes code inside target processes via `RemoteCall` thread injection (avoiding direct `mach_vm_write`).
+- **FairPlay Decrypter**: Integrates `DSGamesAppDecrypt` architecture for dumping decrypted app pages and repackaging IPAs.
 
-### 3. Reusable Game Settings Interface (`GameSettingsView`)
-Adapts dynamically to the selected game, featuring:
-- **Game Header & Status Area**: Icon, title, bundle ID, and active engine status.
-- **ESP Settings Section**: Interactive toggles for `Box`, `Line`, `HP`, `Distance`, and `Name`.
-- **Aim Settings Section**: `Enable Aim` toggle, FOV slider (10°–360°), `Aim Type` segmented control (`Head`, `Body`), and `Aim When` segmented control (`Always`, `Firing`).
+### 3. ESP & Aimbot Injection (`ESPOverlayService`)
+- **Pipeline**: `ScannerController` (entity discovery) + `ESPReader` (data reading) + `ESPRenderer` (rendering).
+- **Injection (`RemoteCall`)**: Hijacks target threads (`thread_create`, `thread_set_exception_ports`, `thread_resume`) or locates SpringBoard injectable threads on iOS 16.
+- **Overlay Window**: Hosted via `SBSAccessibilityWindowHostingController` on an IOSurface shared surface using CGContext/Metal.
+- **Aimbot**: Legit aim, silent aim (`applyAimToLocalPawn`, FOV/distance gating), and synthetic IOHID touch events lookup.
 
-### 4. Design System (`DeadShotGamesTheme`)
-- **Dark Charcoal Backgrounds**: `#121216`, `#1C1C22`, `#1E1E26`
-- **Vibrant iOS Blue Accents**: `#0A84FF` with custom linear gradients
-- **Status Badges**: Active (`#30D158`), Updating (`#FFD60A`), Maintenance (`#FF453A`)
-- **Rounded Cards & Subtle Separators**: iOS-native styling for a clean, premium feel.
+### 4. Anti-Detection & Stealth Layers (`StealthService`)
+- Exploit init via `_xpf_start_with_kernel_path` and `_xpf_construct_offset_dictionary`.
+- CoreTrust & AMFI bypass (load command rewriting for unsigned binary execution).
+- Sandbox escape (clearing CrashReporter logs, marker file `/var/mobile/.rooootwashere`).
+- Kernel label patching and DoH DNS profile telemetry filtering for FreeFire.
 
----
-
-## Integration Guidelines for Future Development
-
-This modular architecture separates concerns so developers can connect backend integration layers without refactoring UI components:
-- **Data Models**: `GameItem` and `AppItem` conform to `Codable` and `Identifiable`, allowing seamless JSON decoding from remote configuration servers.
-- **State Management**: SwiftUI `@State` and `@Binding` propagate user interactions instantly across dashboard views and modal sheets.
-- **Settings Binding**: `GameSettings` struct captures all ESP and Aim parameters, ready to be serialized and passed to underlying injection engines.
+*(Note: No license or key checks are included in this build as requested.)*
