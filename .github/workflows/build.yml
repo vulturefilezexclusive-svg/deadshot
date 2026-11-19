@@ -15,12 +15,12 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '15.0'
-
-    - name: Verify Swift Files & Syntax
+    - name: Check Swift & Xcode Version
       run: |
-        swift --version || echo "Swift CLI check"
+        swift --version
+        xcodebuild -version
+
+    - name: Validate Swift Source Files
+      run: |
         find DeadShotGames -name "*.swift" -print
+        swiftc -v || true
