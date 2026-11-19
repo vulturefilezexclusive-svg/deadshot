@@ -5,6 +5,7 @@ echo "Generating Xcode project..."
 xcodegen generate --spec project.yml
 
 echo "Building unsigned iOS app..."
+mkdir -p build
 xcodebuild \
   -project DeadShotGames.xcodeproj \
   -scheme DeadShotGames \
