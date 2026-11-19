@@ -17,7 +17,7 @@ class ESPOverlayService: ObservableObject {
         activeGameTarget = gameName
         
         if settings.isAimEnabled {
-            print("[DEBUG-Aimbot] applyAimToLocalPawn active. FOV: \(settings.fov), Type: \(settings.aimType.rawValue), When: \(settings.aimWhen.rawValue)")
+            print("[DEBUG-Aimbot] applyAimToLocalPawn active. Smooth: \(settings.isSmoothAimEnabled), Silent: \(settings.isSilentAimEnabled), FOV: \(settings.fov), Type: \(settings.aimType.rawValue), When: \(settings.aimWhen.rawValue)")
             aimbotStatus = "Active (\(settings.aimType.rawValue), FOV \(Int(settings.fov))°)"
         } else {
             aimbotStatus = "Disabled"

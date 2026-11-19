@@ -38,6 +38,8 @@ struct GameSettings: Codable, Equatable {
     
     // Aim Settings
     var isAimEnabled: Bool = false
+    var isSmoothAimEnabled: Bool = true
+    var isSilentAimEnabled: Bool = false
     var fov: Double = 90.0
     var aimType: AimType = .head
     var aimWhen: AimWhen = .always

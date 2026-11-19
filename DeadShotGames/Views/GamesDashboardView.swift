@@ -4,11 +4,7 @@ struct GamesDashboardView: View {
     @State private var games: [GameItem] = GameItem.sampleGames
     @State private var selectedGame: GameItem?
     @State private var infoGame: GameItem?
-    @State private var selectedLanguage: String = "English"
-    @State private var showLanguageAlert = false
     @State private var showOverflowMenu = false
-    
-    let languages = ["English", "Tiếng Việt", "ไทย", "Español", "Português", "中文"]
     
     var body: some View {
         NavigationView {
@@ -46,38 +42,8 @@ struct GamesDashboardView: View {
                             
                             Spacer()
                             
-                            // Top Controls (Language & Overflow Menu)
+                            // Top Controls (Overflow Menu)
                             HStack(spacing: 12) {
-                                // Language Selector Button
-                                Menu {
-                                    ForEach(languages, id: \.self) { lang in
-                                        Button(action: { selectedLanguage = lang }) {
-                                            HStack {
-                                                Text(lang)
-                                                if selectedLanguage == lang {
-                                                    Image(systemName: "checkmark")
-                                                }
-                                            }
-                                        }
-                                    }
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "globe")
-                                            .font(.system(size: 13))
-                                        Text(selectedLanguage.prefix(3).uppercased())
-                                            .font(.system(size: 12, weight: .bold))
-                                    }
-                                    .foregroundColor(DeadShotGamesTheme.textPrimary)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 8)
-                                    .background(DeadShotGamesTheme.backgroundTertiary)
-                                    .cornerRadius(DeadShotGamesTheme.cornerRadiusSmall)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: DeadShotGamesTheme.cornerRadiusSmall)
-                                            .stroke(DeadShotGamesTheme.separator, lineWidth: 0.5)
-                                    )
-                                }
-                                
                                 // Overflow Menu Button
                                 Menu {
                                     Button(action: {}) {

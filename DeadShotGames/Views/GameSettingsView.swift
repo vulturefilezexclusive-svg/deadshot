@@ -3,6 +3,7 @@ import SwiftUI
 struct GameSettingsView: View {
     @Binding var game: GameItem
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     
     @StateObject private var memoryEngine = MemoryEngine()
     @StateObject private var espOverlayService = ESPOverlayService()
@@ -132,6 +133,20 @@ struct GameSettingsView: View {
             
             Divider().background(DeadShotGamesTheme.separator)
             
+            Toggle("Smooth Aim", isOn: $game.settings.isSmoothAimEnabled)
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(DeadShotGamesTheme.textPrimary)
+            
+            Divider().background(DeadShotGamesTheme.separator)
+            
+            Toggle("Silent Aim", isOn: $game.settings.isSilentAimEnabled)
+                .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(DeadShotGamesTheme.textPrimary)
+            
+            Divider().background(DeadShotGamesTheme.separator)
+            
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("FOV Slider")
@@ -210,7 +225,13 @@ struct GameSettingsView: View {
             memoryEngine.initializeKRW()
             espOverlayService.attachOverlay(toGame: game.name, settings: game.settings)
             
-            injectionStatusMessage = "Successfully injected into \(game.name) via RemoteCall & SpringBoard IOSurface!"
+            print("[DEBUG-Launch] Injected ESP, Aimbot (Smooth: \(game.settings.isSmoothAimEnabled), Silent: \(game.settings.isSilentAimEnabled)) & Stealth into \(game.name) (\(game.subtitle)) and launching app...")
+            
+            if let url = URL(string: "\(game.subtitle)://") {
+                openURL(url)
+            }
+            
+            injectionStatusMessage = "Successfully injected into \(game.name) and launched app with ESP & Aimbot settings!"
             showInjectionAlert = true
         }) {
             HStack {
