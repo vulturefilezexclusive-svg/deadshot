@@ -8,7 +8,7 @@ struct GameRowView: View {
     
     var body: some View {
         HStack(spacing: 14) {
-            // Game Icon Placeholder
+            // Game Icon
             ZStack {
                 RoundedRectangle(cornerRadius: DeadShotGamesTheme.cornerRadiusSmall)
                     .fill(DeadShotGamesTheme.backgroundTertiary)
@@ -16,7 +16,7 @@ struct GameRowView: View {
                 
                 Image(systemName: game.iconName)
                     .font(.system(size: 24))
-                    .foregroundColor(DeadShotGamesTheme.accentBlue)
+                    .foregroundColor(DeadShotGamesTheme.accentRed)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: DeadShotGamesTheme.cornerRadiusSmall)
@@ -69,9 +69,9 @@ struct GameRowView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(DeadShotGamesTheme.accentBlueGradient)
+                        .background(DeadShotGamesTheme.accentRedGradient)
                         .cornerRadius(20)
-                        .shadow(color: DeadShotGamesTheme.accentBlue.opacity(0.4), radius: 6, x: 0, y: 3)
+                        .shadow(color: DeadShotGamesTheme.accentRed.opacity(0.4), radius: 6, x: 0, y: 3)
                 }
             }
         }

@@ -1,19 +1,18 @@
 import SwiftUI
 
-/// DeadShotGames Design System & Theme
-/// Defines color palettes, typography, and styling constants for the dark-themed UI.
+/// DeadShotGames Design System & Theme - Formula One Red & OLED Black Edition
 struct DeadShotGamesTheme {
-    // Backgrounds
-    static let backgroundPrimary = Color(hex: 0x121216)
-    static let backgroundSecondary = Color(hex: 0x1C1C22)
-    static let backgroundTertiary = Color(hex: 0x282832)
-    static let cardBackground = Color(hex: 0x1E1E26)
-    static let cardBackgroundHover = Color(hex: 0x252530)
+    // OLED Black Backgrounds
+    static let backgroundPrimary = Color(hex: 0x000000)
+    static let backgroundSecondary = Color(hex: 0x0A0A0A)
+    static let backgroundTertiary = Color(hex: 0x141414)
+    static let cardBackground = Color(hex: 0x121212)
+    static let cardBackgroundHover = Color(hex: 0x1C1C1C)
     
-    // Interactive & Accents
-    static let accentBlue = Color(hex: 0x0A84FF)
-    static let accentBlueGradient = LinearGradient(
-        colors: [Color(hex: 0x0A84FF), Color(hex: 0x0056B3)],
+    // Formula One Red Accents
+    static let accentRed = Color(hex: 0xFF1801)
+    static let accentRedGradient = LinearGradient(
+        colors: [Color(hex: 0xFF1801), Color(hex: 0x990000)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
@@ -29,7 +28,7 @@ struct DeadShotGamesTheme {
     static let textTertiary = Color(hex: 0x636366)
     
     // Borders & Dividers
-    static let separator = Color(hex: 0x38383A).opacity(0.6)
+    static let separator = Color(hex: 0x2C2C2E)
     
     // Corner Radii
     static let cornerRadiusSmall: CGFloat = 8
