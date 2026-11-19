@@ -3,196 +3,87 @@ import SwiftUI
 struct GameSettingsView: View {
     @Binding var game: GameItem
     @Environment(\.dismiss) private var dismiss
-    
-    @StateObject private var memoryEngine = MemoryEngine()
-    @StateObject private var espOverlayService = ESPOverlayService()
-    @StateObject private var stealthService = StealthService()
-    @State private var showInjectionAlert = false
-    @State private var injectionStatusMessage = ""
-    
+    @State private var showSaved = false
+
     var body: some View {
         ZStack {
-            DeadShotGamesTheme.backgroundPrimary
-                .ignoresSafeArea()
-            
+            DeadShotGamesTheme.backgroundPrimary.ignoresSafeArea()
             ScrollView {
-                VStack(spacing: 20) {
-                    // Header / Status Area
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(alignment: .top) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: DeadShotGamesTheme.cornerRadiusMedium)
-                                    .fill(DeadShotGamesTheme.backgroundTertiary)
-                                    .frame(width: 56, height: 56)
-                                
-                                Image(systemName: game.iconName)
-                                    .font(.system(size: 28))
-                                    .foregroundColor(DeadShotGamesTheme.accentBlue)
+                VStack(spacing: 18) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 14) {
+                            Image(systemName: game.iconName)
+                                .font(.system(size: 28, weight: .semibold))
+                                .foregroundColor(DeadShotGamesTheme.accentBlue)
+                                .frame(width: 58, height: 58)
+                                .background(DeadShotGamesTheme.backgroundTertiary)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(game.name).font(.title3.bold()).foregroundColor(DeadShotGamesTheme.textPrimary)
+                                Text(game.subtitle).font(.caption).foregroundColor(DeadShotGamesTheme.textSecondary)
+                                GameStatusView(status: game.status)
                             }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(game.name)
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundColor(DeadShotGamesTheme.textPrimary)
-                                
-                                Text(game.subtitle)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(DeadShotGamesTheme.textSecondary)
-                                
-                                HStack(spacing: 8) {
-                                    GameStatusView(status: game.status)
-                                    Text("•")
-                                        .foregroundColor(DeadShotGamesTheme.textTertiary)
-                                    Text("DS Core v2.5 (KRW Active)")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(DeadShotGamesTheme.statusActive)
-                                }
-                            }
-                            
                             Spacer()
                         }
                     }
                     .padding(16)
                     .dsCardStyle()
-                    
-                    // ESP Settings Section
-                    SettingsSectionView(title: "ESP Settings", subtitle: "ScannerController, ESPReader & Renderer") {
-                        Toggle("Box", isOn: $game.settings.isBoxEnabled)
-                            .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(DeadShotGamesTheme.textPrimary)
-                        
+
+                    SettingsSectionView(title: "ESP Settings", subtitle: "Display preferences") {
+                        settingToggle("Box", value: $game.settings.isBoxEnabled)
                         Divider().background(DeadShotGamesTheme.separator)
-                        
-                        Toggle("Line", isOn: $game.settings.isLineEnabled)
-                            .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(DeadShotGamesTheme.textPrimary)
-                        
+                        settingToggle("Line", value: $game.settings.isLineEnabled)
                         Divider().background(DeadShotGamesTheme.separator)
-                        
-                        Toggle("HP", isOn: $game.settings.isHpEnabled)
-                            .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(DeadShotGamesTheme.textPrimary)
-                        
+                        settingToggle("HP", value: $game.settings.isHpEnabled)
                         Divider().background(DeadShotGamesTheme.separator)
-                        
-                        Toggle("Distance", isOn: $game.settings.isDistanceEnabled)
-                            .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(DeadShotGamesTheme.textPrimary)
-                        
+                        settingToggle("Distance", value: $game.settings.isDistanceEnabled)
                         Divider().background(DeadShotGamesTheme.separator)
-                        
-                        Toggle("Name", isOn: $game.settings.isNameEnabled)
-                            .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(DeadShotGamesTheme.textPrimary)
+                        settingToggle("Name", value: $game.settings.isNameEnabled)
                     }
-                    
-                    // Aim Settings Section
-                    SettingsSectionView(title: "Aim Settings", subtitle: "applyAimToLocalPawn & RemoteCall") {
-                        Toggle("Enable Aim", isOn: $game.settings.isAimEnabled)
-                            .toggleStyle(SwitchToggleStyle(tint: DeadShotGamesTheme.accentBlue))
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(DeadShotGamesTheme.textPrimary)
-                        
+
+                    SettingsSectionView(title: "Aim Controls", subtitle: "Configuration preferences") {
+                        settingToggle("Enable Aim", value: $game.settings.isAimEnabled)
                         Divider().background(DeadShotGamesTheme.separator)
-                        
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text("FOV Slider")
-                                    .font(.system(size: 15, weight: .medium))
-                                    .foregroundColor(DeadShotGamesTheme.textPrimary)
+                                Text("FOV").foregroundColor(DeadShotGamesTheme.textPrimary)
                                 Spacer()
                                 Text("\(Int(game.settings.fov))°")
-                                    .font(.system(size: 15, weight: .bold))
+                                    .fontWeight(.semibold)
                                     .foregroundColor(DeadShotGamesTheme.accentBlue)
                             }
-                            
                             Slider(value: $game.settings.fov, in: 10...360, step: 1)
-                                .accentColor(DeadShotGamesTheme.accentBlue)
+                                .tint(DeadShotGamesTheme.accentBlue)
                         }
-                        
                         Divider().background(DeadShotGamesTheme.separator)
-                        
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Aim Type")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundColor(DeadShotGamesTheme.textPrimary)
-                            
+                            Text("Aim Type").foregroundColor(DeadShotGamesTheme.textPrimary)
                             Picker("Aim Type", selection: $game.settings.aimType) {
-                                ForEach(AimType.allCases) { type in
-                                    Text(type.rawValue).tag(type)
-                                }
+                                ForEach(AimType.allCases) { Text($0.rawValue).tag($0) }
                             }
-                            .pickerStyle(SegmentedPickerStyle())
+                            .pickerStyle(.segmented)
                         }
-                        
                         Divider().background(DeadShotGamesTheme.separator)
-                        
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Aim When")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundColor(DeadShotGamesTheme.textPrimary)
-                            
+                            Text("Aim When").foregroundColor(DeadShotGamesTheme.textPrimary)
                             Picker("Aim When", selection: $game.settings.aimWhen) {
-                                ForEach(AimWhen.allCases) { when in
-                                    Text(when.rawValue).tag(when)
-                                }
+                                ForEach(AimWhen.allCases) { Text($0.rawValue).tag($0) }
                             }
-                            .pickerStyle(SegmentedPickerStyle())
+                            .pickerStyle(.segmented)
                         }
                     }
-                    
-                    // Kernel & Stealth Status Section
-                    SettingsSectionView(title: "Backend & Stealth Status", subtitle: "xpf, CoreTrust, and Mach Ports") {
-                        HStack {
-                            Text("KRW Primitive")
-                            Spacer()
-                            Text(memoryEngine.isConnectedToKernel ? "Active" : "Unbound")
-                                .foregroundColor(memoryEngine.isConnectedToKernel ? DeadShotGamesTheme.statusActive : DeadShotGamesTheme.statusInactive)
-                        }
-                        Divider().background(DeadShotGamesTheme.separator)
-                        HStack {
-                            Text("CoreTrust / AMFI Bypass")
-                            Spacer()
-                            Text(stealthService.coreTrustBypassed ? "Bypassed" : "Locked")
-                                .foregroundColor(DeadShotGamesTheme.statusActive)
-                        }
-                        Divider().background(DeadShotGamesTheme.separator)
-                        HStack {
-                            Text("Sandbox Escape (.rooootwashere)")
-                            Spacer()
-                            Text(stealthService.sandboxEscaped ? "Escaped" : "Sandboxed")
-                                .foregroundColor(DeadShotGamesTheme.statusActive)
-                        }
+
+                    Button {
+                        showSaved = true
+                    } label: {
+                        Label("Save Configuration", systemImage: "checkmark.circle.fill")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(DeadShotGamesTheme.accentBlueGradient)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    
-                    // Launch / Injection Action Button
-                    Button(action: {
-                        // Initialize backend services and inject via RemoteCall
-                        stealthService.initializeStealth()
-                        memoryEngine.initializeKRW()
-                        espOverlayService.attachOverlay(toGame: game.name, settings: game.settings)
-                        
-                        injectionStatusMessage = "Successfully injected into \(game.name) via RemoteCall & SpringBoard IOSurface!"
-                        showInjectionAlert = true
-                    }) {
-                        HStack {
-                            Image(systemName: "bolt.fill")
-                            Text("LAUNCH WITH INJECTION")
-                        }
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(DeadShotGamesTheme.accentBlueGradient)
-                        .cornerRadius(DeadShotGamesTheme.cornerRadiusMedium)
-                        .shadow(color: DeadShotGamesTheme.accentBlue.opacity(0.4), radius: 8, x: 0, y: 4)
-                    }
-                    .padding(.top, 10)
                 }
                 .padding(16)
             }
@@ -201,20 +92,22 @@ struct GameSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(DeadShotGamesTheme.textSecondary)
-                        .font(.system(size: 20))
-                }
+                Button("Close") { dismiss() }
+                    .foregroundColor(DeadShotGamesTheme.textSecondary)
             }
         }
-        .alert(isPresented: $showInjectionAlert) {
-            Alert(
-                title: Text("Injection Active"),
-                message: Text(injectionStatusMessage),
-                dismissButton: .default(Text("OK"))
-            )
+        .alert("Configuration Saved", isPresented: $showSaved) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Your settings have been saved for this session.")
         }
         .preferredColorScheme(.dark)
+    }
+
+    private func settingToggle(_ title: String, value: Binding<Bool>) -> some View {
+        Toggle(title, isOn: value)
+            .tint(DeadShotGamesTheme.accentBlue)
+            .font(.system(size: 15, weight: .medium))
+            .foregroundColor(DeadShotGamesTheme.textPrimary)
     }
 }
