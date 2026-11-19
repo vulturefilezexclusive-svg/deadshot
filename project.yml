@@ -1,0 +1,25 @@
+name: DeadShotGames
+options:
+  bundleIdPrefix: com.deadshotgames
+  deploymentTarget:
+    iOS: "16.1"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.1"
+targets:
+  DeadShotGames:
+    type: application
+    platform: iOS
+    sources:
+      - path: DeadShotGames
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.deadshotgames.app
+        PRODUCT_NAME: DeadShotGames
+        INFOPLIST_KEY_CFBundleDisplayName: DeadShotGames
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+        CODE_SIGN_STYLE: Automatic
