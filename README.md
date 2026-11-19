@@ -75,3 +75,17 @@ deadshot/
 - Kernel label patching and DoH DNS profile telemetry filtering for FreeFire.
 
 *(Note: No license or key checks are included in this build as requested.)*
+
+---
+
+## Building the Project & Generating IPAs
+
+### Local Build Automation
+You can verify and compile the project sources locally using the provided build script:
+```bash
+chmod +x build-ipa.sh
+./build-ipa.sh
+```
+
+### GitHub Actions CI & Artifacts
+The repository includes a GitHub Actions workflow (`.github/workflows/build.yml`) that runs on every push and pull request. It compiles the SwiftUI source files and packages them into downloadable build artifacts (`DeadShotGames-Build-Artifacts`) in your GitHub repository's Actions tab.
