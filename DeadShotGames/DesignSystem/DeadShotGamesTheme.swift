@@ -55,7 +55,7 @@ struct DSGameCardModifier: ViewModifier {
     var backgroundColor: Color = DeadShotGamesTheme.cardBackground
     var cornerRadius: CGFloat = DeadShotGamesTheme.cornerRadiusCard
     
-    func body(content: Content) -> View {
+    func body(content: Content) -> some View {
         content
             .background(backgroundColor)
             .cornerRadius(cornerRadius)

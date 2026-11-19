@@ -14,14 +14,14 @@ enum GameStatus: String, Codable, CaseIterable {
     }
 }
 
-enum AimType: String, CaseIterable, Identifiable {
+enum AimType: String, Codable, CaseIterable, Identifiable {
     case head = "Head"
     case body = "Body"
     
     var id: String { rawValue }
 }
 
-enum AimWhen: String, CaseIterable, Identifiable {
+enum AimWhen: String, Codable, CaseIterable, Identifiable {
     case always = "Always"
     case firing = "Firing"
     
