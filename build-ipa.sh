@@ -1,22 +1,27 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-echo "=== DeadShotGames-UI-Source IPA Build & Verification ==="
-echo "Checking Swift & Xcode environment..."
-swift --version
-xcodebuild -version
+echo "Generating Xcode project..."
+xcodegen generate --spec project.yml
 
-echo "Verifying Swift source files..."
-find DeadShotGames -name "*.swift" -print
+echo "Building unsigned iOS app..."
+xcodebuild \
+  -project DeadShotGames.xcodeproj \
+  -scheme DeadShotGames \
+  -configuration Release \
+  -sdk iphoneos \
+  -destination 'generic/platform=iOS' \
+  -derivedDataPath build/DerivedData \
+  CODE_SIGNING_ALLOWED=NO \
+  build
 
-echo "Running compilation check..."
-swiftc -parse-as-library -target arm64-apple-ios16.1 -emit-library \
-  DeadShotGames/App/DeadShotGamesApp.swift \
-  DeadShotGames/Views/*.swift \
-  DeadShotGames/Components/*.swift \
-  DeadShotGames/Models/*.swift \
-  DeadShotGames/Services/*.swift \
-  DeadShotGames/DesignSystem/*.swift \
-  -o libDeadShotGames.dylib || echo "Compilation verification completed"
+APP_PATH="build/DerivedData/Build/Products/Release-iphoneos/DeadShotGames.app"
+test -d "$APP_PATH"
 
-echo "Build preparation script completed successfully."
+mkdir -p build/ipa/Payload
+rm -rf build/ipa/Payload/DeadShotGames.app
+cp -R "$APP_PATH" build/ipa/Payload/
+ditto -c -k --sequesterRsrc --keepParent build/ipa/Payload build/DeadShotGames-unsigned.ipa
+
+echo "Created build/DeadShotGames-unsigned.ipa"
+echo "This archive is unsigned and requires signing with an Apple Distribution certificate and provisioning profile before installation."
